@@ -1,2 +1,2 @@
 # Fintech
-Projects related to fintech 
+Projects related to fintech and my personality ! 
