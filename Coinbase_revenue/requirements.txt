@@ -1,0 +1,3 @@
+sec-api 
+pandas 
+openai
