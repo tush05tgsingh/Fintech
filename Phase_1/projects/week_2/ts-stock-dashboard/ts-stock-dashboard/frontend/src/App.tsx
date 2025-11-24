@@ -1,119 +1,144 @@
 import {useState} from 'react';
-import {LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from 'recharts';
-import FileUploader from '../components/FileUploader';
+import {LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import ACFPACFChart from "./components/graphs";
+import ForecastControls from "./components/ForecastControls";
 import './App.css';
+import { fetchStockData } from './api';
 
-
-// Interface defines the structure of stock data
-interface StockData {
-  date: string;
-  price: number;
-  returns: number;
+type DataPoint = {
+  date:string;
+  price?:number;
+  return?:number;
+  forecast?:number;
 }
-
-type ForcastPoint = {
-  date: string;
-  predictedPrice: number;
-}
-
-const mockStockData: StockData[] = [
-  {date: '2023-01-01', price: 150, returns: 0},
-  {date: '2023-01-02', price: 155, returns: 0.033},
-  {date: '2023-01-03', price: 160, returns: 0.032},
-  {date: '2023-01-04', price: 158, returns: -0.0125},
-  {date: '2023-01-05', price: 162, returns: 0.0253},
-];
 
 export default function App(){
-  const[ticker, setTicker] = useState<string>('APPL'); //useState<Type> type-safe react state
-  const[data, setData] = useState<StockData[]>([]); // Initial mock data
-  const[forcastData, setForcastData] = useState<ForcastPoint[]>([]);
-  const[view, setView] = useState<"price" | "returns">("price");
+  const [ticker, setTicker] = useState("AAPL");
+  const [start, setStart] = useState("2020-01-01");
+  const [end, setEnd] = useState("2024-12-31");
+  const [data, setData] = useState<DataPoint[]>([]);
+  const [caldata, setcaldata] = useState<DataPoint[]>([]);
+  const [forecast, setForecast] = useState<any | null>(null);
+  const [stats, setStats] = useState<any | null>(null);
 
-  const handleForcast = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const json = JSON.parse(event.target?.result as string);
-      const formatted = json.dates.map((d:string, i:number) => ({date: d, predictedPrice: json.prices[i]}));
-      setForcastData(formatted);  
-    }
-    reader.readAsText(file);
-  };
+  async function load(){
+    const res = await fetchStockData(ticker, start, end);
+    console.log("API response:", res);
+    setData(res.price_data.map((p:any)=>({
+      date:p.date, price:p.price})));
+    setStats(res);
+  }
+
+  function handleArimaResult(res: any){
+    setForecast(res);
+    
+    const historicalPoints: DataPoint[] = Object.entries(res.prices).map(
+      ([date, val]: any) => ({
+        date: new Date(date).toISOString().split("T")[0],
+        price: val,
+      })
+    );
+
+
+    console.log(historicalPoints)
+
+    const forecastPoints: DataPoint[] = res.forecast_dates.map(
+      (date: string, i: number) => ({
+        date,
+        forecast: res.forecast[i],
+      })
+    );
+
+    const merged = [...historicalPoints, ...forecastPoints];
+
+    // 4) Store in state
+    setcaldata(merged);
+  }
 
   return(
     <div style={{padding: "10px", fontFamily: 'Arial, sans-serif'}}>
-      <h1>Stock Analysis Dashboard</h1>
-      <label>
-        Enter Stock Ticker:
-        <select value={ticker} onChange={(e) => setTicker(e.target.value)} style={{marginLeft: '10px', padding: '5px'}}>
-          <option value="APPL">APPL</option>
-          <option value="GOOGL">GOOGL</option>
-          <option value="MSFT">MSFT</option>
-        </select>
-      </label>
-      <h2 style={{marginTop: '20px'}}>Mock closing price for {ticker}</h2> {/* Dynamic title mix of JSX+TSX */}
+      <h1 className="text-2xl font-semibold flex items-center gap-2">
+          Stock Analysis Dashboard 
+          <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-md shadow-sm cursor-default select-none">
+            React
+          </span>
+          <span className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-md shadow-sm cursor-default select-none">
+            TypeScript
+          </span>
+          <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-md shadow-sm cursor-default select-none">
+            FastAPI
+          </span>
+        </h1>
 
-      <ul>
-        {mockStockData.map((data) => (
-          <li key={data.date}>{data.date}: ${data.price}</li>
-        ))}
-      </ul>
-
-      <FileUploader onDataLoaded={setData}/>
-
-      <div className="mb-6">
-        <label className="block text-gray-700 text-sm font-bold mb-2">
-            Upload Forcast JSON:
-            <input type="file" accept=".json" onChange={handleForcast} className="bg-gray-800 p-2 rounded cursor-pointer hover:bg-gray-700"/>
-        </label>
+      <div className="flex gap-2 mb-4">
+        <input value={ticker} onChange={(e)=>setTicker(e.target.value)} className='p-2 rounded bg-gray-800' />
+        <input value={start} onChange={(e)=>setStart(e.target.value)} className='p-2 rounded bg-gray-800' />
+        <input value={end} onChange={(e)=>setEnd(e.target.value)} className='p-2 rounded bg-gray-800' />
+        <button onClick={load} className='bg-teal-500 px-3 rounded'>Load</button>
       </div>
 
-      
-      
-      {data.length > 0 && forcastData.length > 0 ? (
-      <>
-        <div className ="flex gap-4 mb-6">
-          <button onClick={() => setView("price")}
-            className={`px-4 py-2 rounded ${view === "price" ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
-            Price View
-          </button>
-          <button onClick={() => setView("returns")}
-            className={`px-4 py-2 rounded ${view === "returns" ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
-            Returns View
-          </button>
-        </div>
-        {view === "price" ? (
-          // Price Line Chart
-            <div className="bg-gray-800 rounded-2xl p-4 mb-8 shadow-lg">
-              <h2 className="text-white text-xl mb-4">Stock Prices Over Time</h2>
-              <LineChart width={600} height={300} data={[...mockStockData, ...forcastData]}>
-                <XAxis dataKey="date" stroke="#ccc"/>
-                <YAxis stroke="#ccc"/>
-                <Tooltip/>
-                <CartesianGrid stroke="#555" strokeDasharray="3 3"/>
-                <Line type="monotone" dataKey="price" stroke="#8884d8" strokeWidth={2} />
-                <Line type="monotone" dataKey="predictedPrice" stroke="#82ca9d" strokeDasharray="5 5"/>
-              </LineChart>
-            </div>
-          ):(
-          // Returns Bar Chart
-          <div className="bg-gray-800 rounded-2xl p-4 shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Return Distribution</h2>
-            <BarChart width={700} height={300} data={mockStockData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-              <XAxis dataKey="date" stroke="#ccc" />
-              <YAxis stroke="#ccc" />
+      <ForecastControls ticker={ticker} start_date={start} end_date={end} onResult={handleArimaResult}/>
+
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='bg-gray-800 rounded p-4'>
+          {data ? (
+            <div><h3 className='font-semibold mb-2'>Price Chart</h3>
+          <LineChart width={500} height={400} data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#555" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="price" stroke="#4FD1C5" dot={false} />
+            <Line type="monotone" dataKey="forecast" stroke="#F6AD55" strokeDasharray="5 5" dot={false} />
+          </LineChart></div>): <div>price chart</div>}
+          {caldata? (
+            <div>
+              <LineChart width={500} height={400} data={caldata}>
+              <XAxis dataKey="date" />
+              <YAxis />
               <Tooltip />
-              <Bar dataKey="returns" fill="#F6AD55" />
-            </BarChart>
-          </div>
-        )}
-      </>  
-      ) : (
-        <p className="text-gray-400">Please upload the csv to begin</p>)
-      } 
+
+              <Line
+                type="monotone"
+                dataKey="price"
+                stroke="#aa3382ff"
+                dot={false}
+              />
+
+              <Line
+                type="monotone"
+                dataKey="forecast"
+                stroke="#f6ad55"
+                strokeDasharray="4 4"
+                dot={false}
+              />
+            </LineChart>
+            </div>
+          ): <div></div>}
+        </div>
+
+        <div className="bg-gray-800 rounded p-4">
+          <h3 className="font-semibold mb-2">Summary</h3>
+          {stats ? (
+            <div>
+              <div>Ticker: {ticker}</div>
+              <div>Skewness: {stats.skewness.toFixed(4)}</div>
+              <div>Kurtosis: {stats.kurtosis.toFixed(4)}</div>
+              <div>ADF p-value (returns): {stats.adf.p_value.toFixed(4)}</div>
+            </div>
+          ) : <div>Load data to see stats</div>}
+          {forecast ? (
+            <div>
+              <h4 className="mt-3">ARIMA Result</h4>
+              <div>Order: ({forecast.order.p}, {forecast.order.d}, {forecast.order.q})</div>
+              <div>AIC: {forecast.aic.toFixed(2)}  BIC: {forecast.bic.toFixed(2)}</div>
+              <div className="mt-2 text-sm text-gray-300">{forecast.explanation}</div>
+              <ACFPACFChart title="ACF & PACF — Prices" data={forecast.acf_pacf.prices} />
+              <ACFPACFChart title="ACF & PACF — Returns" data={forecast.acf_pacf.returns} />
+            </div>
+          ): <div>The forecast need to be calculated</div>}
+        </div>
       </div>
+    </div>
   );
 }
