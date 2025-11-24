@@ -9,15 +9,12 @@ from scipy import stats
 from statsmodels.stats.diagnostic import acorr_ljungbox
 from pydantic import BaseModel
 from statsmodels.tsa.stattools import acf, pacf
-from mangum import Mangum 
 
 app = FastAPI()
 
 @app.get("/ping")
 def ping():
     return {"message": "pong"}
-
-handler = Mangum(app) 
 
 #allow CORS for local frontend
 app.add_middleware(
