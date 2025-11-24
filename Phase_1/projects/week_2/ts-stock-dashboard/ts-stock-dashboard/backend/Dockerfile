@@ -1,8 +1,18 @@
+# Use official Python image
 FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
+
+# Copy requirements and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Copy app code
+COPY app/ ./app
+
+# Expose port (Vercel will map it)
+EXPOSE 8000
+
+# Command to run FastAPI via Uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
