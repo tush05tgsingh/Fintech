@@ -1,9 +1,0 @@
-fastapi
-yfinanace
-pandas
-numpy
-scipy
-statsmodels
-pydantic
-python-multipart
-uvicorn[standard]
