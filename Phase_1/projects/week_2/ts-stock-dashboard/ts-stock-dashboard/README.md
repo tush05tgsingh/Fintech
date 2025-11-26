@@ -1,73 +1,124 @@
-# React + TypeScript + Vite
+# 📈 FinTech Stock Forecasting Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack **financial analytics and forecasting platform** built using **React + TypeScript**, **FastAPI**, **Docker**, and **Render**.  
+The dashboard provides ARIMA forecasting, ACF/PACF analysis, historical charts, and statistical diagnostics for any publicly traded stock.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Live Demo
 
-## React Compiler
+### **Frontend:** https://fintech-43ngfa730-tush05tgsinghs-projects.vercel.app/
+### **Backend API:** https://fintech-rf8s.onrender.com/api/health
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🧠 Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 📊 Stock Forecasting
+- ARIMA-based future price prediction  
+- Prices & returns ACF/PACF  
+- Stationarity test (ADF)  
+- Forecast with confidence intervals  
+- Historical stock analysis using Yahoo Finance  
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🖥️ Frontend (React + TS)
+- Vite development environment  
+- Recharts for interactive data visualization  
+- Dropdown-based UI for Forecast / Prices / ACF-PACF  
+- API-integrated modular components  
+- Fully typed data models (TypeScript)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### ⚙️ Backend (FastAPI)
+- Endpoints:
+  - `/api/forecast`
+  - `/api/prices`
+  - `/api/acf-pacf`
+  - `/api/health`
+- Uses:
+  - Pandas  
+  - NumPy  
+  - Statsmodels (ARIMA, ACF, PACF, ADF)  
+  - yfinance  
+- Dockerized and deployed on Render
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🛠️ Tech Stack
+
+### **Frontend**
+- React  
+- TypeScript  
+- Vite  
+- Recharts  
+- Axios  
+
+### **Backend**
+- FastAPI  
+- Uvicorn  
+- Python 3.11  
+- Statsmodels  
+- Pandas / NumPy  
+- yfinance  
+
+### **Infrastructure**
+- Docker  
+- Render (Backend)  
+- Vercel or Render (Frontend)
+
+---
+
+## 📁 Project Structure
+
+Fintech/
+│
+├── Phase_1/
+│ ├── projects/
+│ │ ├── week_2/
+│ │ │ ├── ts-stock-dashboard/
+│ │ │ │ ├── ts-stock-dashboard/
+│ │ │ │ │ ├── frontend/
+│ │ │ │ │ ├── backend/
+│ │ │ │ │ │ ├── app/
+│ │ │ │ │ │ │ └── main.py
+│ │ │ │ │ │ ├── requirements.txt
+│ │ │ │ │ │ └── Dockerfile
+
+
+---
+
+## 📡 API Endpoints
+
+### 🟢 Health Check  
+https://fintech-1-dygz.onrender.com/api/health
+
+### Stock Forecast
+https://fintech-1-dygz.onrender.com/api/data?ticker=${ticker}&start=${start}&end=${end}
+
+## Running Locally
+
+#### Clone the repository
+```
+git clone https://github.com/tush05tgsingh/Fintech
+```
+#### Backend Setup (FastAPI)
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+#### Frontend Setup (React + TypeScript)
+```bash
+cd frontend
+npm install
+npm run dev
 ```
+
+
+# 👩‍💻 Author
+
+Tushita Singh
+ML + Software Engineer
+GitHub: https://github.com/tush05tgsingh
+
+LinkedIn: https://www.linkedin.com/in/tushita-singh/
