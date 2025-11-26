@@ -9,6 +9,8 @@ from scipy import stats
 from statsmodels.stats.diagnostic import acorr_ljungbox
 from pydantic import BaseModel
 from statsmodels.tsa.stattools import acf, pacf
+import uvicorn
+import os
 
 app = FastAPI()
 
@@ -322,3 +324,6 @@ async def get_arima_forcast(request: ARIMARequest):
 async def health_check():
     return {"status": "ok"}
 
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
